@@ -75,6 +75,58 @@ document.addEventListener('keydown', e => {
 });
 document.addEventListener('keyup', e => { keys[e.code] = false; });
 
+// ── Mobile Touch Controls ──────────────────────
+if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+  const touchControls = document.getElementById('touchControls');
+  if (touchControls) touchControls.style.display = 'flex';
+
+  const touchMap = {
+    'btnUp': 'KeyW',
+    'btnLeft': 'KeyA',
+    'btnRight': 'KeyD',
+    'btnDown': 'KeyS',
+    'btnPunch': 'Space',
+    'btnKick': 'KeyK',
+    'btnSpecial': 'ShiftLeft'
+  };
+
+  const handleTouches = (e) => {
+    if (!gameRunning) return;
+    
+    let isTouchingControls = false;
+    const nextKeys = {};
+    for (const id in touchMap) nextKeys[touchMap[id]] = false;
+
+    for (let i = 0; i < e.touches.length; i++) {
+      const touch = e.touches[i];
+      const target = document.elementFromPoint(touch.clientX, touch.clientY);
+      if (target && target.classList.contains('t-btn')) {
+        isTouchingControls = true;
+        const key = touchMap[target.id];
+        if (key) {
+           if (!keys[key] && key === 'ShiftLeft') shiftJustPressed = true;
+           nextKeys[key] = true;
+           target.classList.add('active');
+        }
+      }
+    }
+    
+    Object.keys(nextKeys).forEach(k => { keys[k] = nextKeys[k]; });
+    
+    if (isTouchingControls && e.cancelable) e.preventDefault();
+    
+    document.querySelectorAll('.t-btn').forEach(b => {
+      const key = touchMap[b.id];
+      if (!nextKeys[key]) b.classList.remove('active');
+    });
+  };
+
+  document.addEventListener('touchstart', handleTouches, {passive: false});
+  document.addEventListener('touchmove', handleTouches, {passive: false});
+  document.addEventListener('touchend', handleTouches, {passive: false});
+  document.addEventListener('touchcancel', handleTouches, {passive: false});
+}
+
 
 // ── Player Input ──────────────────────────────
 function handleMovement(f, inputMap = keys, isShiftPressed = shiftJustPressed) {

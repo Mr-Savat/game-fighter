@@ -145,7 +145,7 @@ function drawAttackEffect(f) {
     ctx.globalAlpha = popAlpha;
     ctx.shadowColor = colGlow;
     ctx.shadowBlur  = 20;
-    ctx.font = `bold ${18 + (1-progress)*8}px "Black Ops One", cursive`;
+    ctx.font = `900 ${18 + (1-progress)*8}px "Inter", sans-serif`;
     ctx.textAlign = 'center';
     ctx.fillStyle = col;
     ctx.fillText(label, cx, popY);
@@ -160,7 +160,7 @@ function drawFFAHeadHud(f) {
   
   ctx.save();
   // Name
-  ctx.font = '12px "Share Tech Mono", monospace';
+  ctx.font = '700 12px "Inter", sans-serif';
   ctx.textAlign = 'center';
   ctx.fillStyle = f.isClientMe || (isHost && fighters.indexOf(f) === 0) ? '#ffea00' : '#ffffff';
   ctx.fillText(f.name || `PLAYER ${fighters.indexOf(f) + 1}`, cx, topY - 8);
@@ -338,7 +338,7 @@ function drawFighter(f) {
   if (f.comboCount > 1) {
     ctx.save();
     ctx.fillStyle = '#ff2d2d';
-    ctx.font = 'bold 24px "Black Ops One", cursive';
+    ctx.font = '900 24px "Inter", sans-serif';
     ctx.shadowColor = '#ff2d2d';
     ctx.shadowBlur = 10;
     ctx.textAlign = 'center';
@@ -363,7 +363,7 @@ function drawAnnounce() {
   const alpha = Math.min(1, announceTimer / 20);
   ctx.save();
   ctx.globalAlpha = alpha;
-  ctx.font = 'bold 52px "Black Ops One", cursive';
+  ctx.font = '900 52px "Inter", sans-serif';
   ctx.textAlign = 'center';
   ctx.fillStyle = '#ffe600';
   ctx.shadowColor = '#ffe600';

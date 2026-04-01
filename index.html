@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Street Fighter</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
@@ -87,20 +87,38 @@
     </div>
 
     <canvas id="gameCanvas" width="820" height="430"></canvas>
+    
+    <!-- Mobile Touch Controls -->
+    <div id="touchControls">
+      <div class="dpad">
+        <div id="btnUp" class="t-btn btn-up">W</div>
+        <div id="btnLeft" class="t-btn btn-left">A</div>
+        <div id="btnRight" class="t-btn btn-right">D</div>
+        <div class="center-hole"></div>
+        <div id="btnDown" class="t-btn btn-down">S</div>
+      </div>
+      <div class="action-pad">
+        <div id="btnSpecial" class="t-btn btn-special">⭐</div>
+        <div id="btnKick" class="t-btn btn-kick">K</div>
+        <div id="btnPunch" class="t-btn btn-punch">P</div>
+      </div>
+    </div>
+
     <button id="fsBtn" onclick="toggleFS()" style="
-    margin-top:8px;
-    font-family:'Share Tech Mono',monospace;
-    font-size:11px;letter-spacing:2px;
-    background:transparent;border:1px solid #2a2a3a;
-    color:#555;padding:6px 16px;border-radius:4px;cursor:pointer;
-    text-transform:uppercase;transition:all 0.15s;
-  " onmouseover="this.style.color='#00cfff';this.style.borderColor='#00cfff'"
-      onmouseout="this.style.color='#555';this.style.borderColor='#2a2a3a'">
+    margin-top:20px;
+    font-family:'Inter',sans-serif;
+    font-weight:700;
+    font-size:12px;letter-spacing:1px;
+    background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
+    color:rgba(255,255,255,0.6);padding:10px 24px;border-radius:24px;cursor:pointer;
+    text-transform:uppercase;transition:all 0.2s;
+  " onmouseover="this.style.color='#fff';this.style.background='rgba(255,255,255,0.1)'"
+      onmouseout="this.style.color='rgba(255,255,255,0.6)';this.style.background='rgba(255,255,255,0.05)'">
       ⛶ FULLSCREEN
     </button>
   </div>
 
-  <div id="superReady">⚡ SUPER READY — PRESS SHIFT ⚡</div>
+  <div id="superReady">⚡ SUPER READY ⚡</div>
 
   <!-- RESULT OVERLAY -->
   <div id="overlay">

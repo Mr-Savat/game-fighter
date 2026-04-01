@@ -179,6 +179,11 @@ function checkGameOver() {
   }
 
   document.getElementById('overlay').classList.add('active');
+
+  // Broadcast the final authoritative score to the client instantly
+  if (isOnline && isHost) {
+    sendNetworkState();
+  }
 }
 
 

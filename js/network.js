@@ -54,7 +54,7 @@ function initHost() {
 
     setTimeout(() => {
       document.getElementById('startScreen').style.display = 'none';
-      startMatch(); // Host orchestrates match
+      startGame(); // Host orchestrates match
     }, 1000);
   });
 }
@@ -72,7 +72,7 @@ function initClient(hostId) {
       
       setTimeout(() => {
         document.getElementById('startScreen').style.display = 'none';
-        startMatch(); // Initialize dummy states
+        startGame(); // Initialize dummy states
       }, 1000);
     });
 

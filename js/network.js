@@ -35,8 +35,18 @@ function setupNetworkUI() {
     
     // Broadcast to 1v1 or all FFA clients
     if (isFFA) {
+      if (fighters.length > 0) fighters[0].customAvatar = hostAvatarImg;
+      
+      let allAvatars = { 0: avatarDataUrl };
+      for (let i = 0; i < ffaConnections.length; i++) {
+        const client = ffaConnections[i];
+        if (client.avatar && client.avatar.complete) {
+          allAvatars[i + 1] = client.avatar.src;
+          if (fighters[i + 1]) fighters[i + 1].customAvatar = client.avatar;
+        }
+      }
       for (const client of ffaConnections) {
-        if (client.conn && client.conn.open) client.conn.send({ type: 'startFFA', avatar: avatarDataUrl });
+        if (client.conn && client.conn.open) client.conn.send({ type: 'startFFA', allAvatars });
       }
     } else {
       if (conn && conn.open) conn.send({ type: 'start', avatar: avatarDataUrl });
@@ -260,6 +270,15 @@ function initHostFFA() {
       if (data.type === 'avatar' && data.avatar) {
         client.avatar = new Image();
         client.avatar.src = data.avatar;
+        
+        // Ensure all connected clients instantly receive the updated global avatar mapping!
+        let allAvatars = { 0: (typeof hostAvatarImg !== 'undefined' && hostAvatarImg && hostAvatarImg.complete) ? hostAvatarImg.src : null };
+        for (let i = 0; i < ffaConnections.length; i++) {
+           if (ffaConnections[i].avatar) allAvatars[i + 1] = ffaConnections[i].avatar.src;
+        }
+        for (const other of ffaConnections) {
+           if (other.conn && other.conn.open) other.conn.send({ type: 'updateAvatarsFFA', allAvatars });
+        }
       }
     });
 
@@ -293,9 +312,14 @@ function initClientFFA(hostId) {
         
         document.getElementById('startScreen').style.display = 'none';
         
-        // Build the fighters array based on how many Host sent
-        // Wait, the host will send the full array in state packets!
+        // Cache initial avatar dictionary
+        window.ffaAvatarSrcMap = data.allAvatars || window.ffaAvatarSrcMap || {};
+        
         startGame();
+      }
+
+      if (data.type === 'updateAvatarsFFA') {
+        window.ffaAvatarSrcMap = data.allAvatars;
       }
 
       if (data.type === 'stateFFA') {
@@ -312,12 +336,12 @@ function initClientFFA(hostId) {
             Object.assign(fighters[i], data.fighters[i]);
             fighters[i].isClientMe = (i === data.yourIndex);
             
-            // Reapply avatars if we had them or map them
-            // Host is always 0
-            if (i === 0 && data.hostAvatar) {
-                if (!hostAvatarImg || hostAvatarImg.src !== data.hostAvatar) {
-                    hostAvatarImg = new Image();
-                    hostAvatarImg.src = data.hostAvatar;
+            // Map avatars dynamically
+            if (window.ffaAvatarSrcMap && window.ffaAvatarSrcMap[i]) {
+                if (!fighters[i].customAvatar || fighters[i].customAvatar.src !== window.ffaAvatarSrcMap[i]) {
+                    const img = new Image();
+                    img.src = window.ffaAvatarSrcMap[i];
+                    fighters[i].customAvatar = img;
                 }
             }
         }

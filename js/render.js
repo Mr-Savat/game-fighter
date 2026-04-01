@@ -306,7 +306,9 @@ function drawFighter(f) {
   ctx.fill();
 
   // Avatar face on head
-  let av = f.isPlayer ? hostAvatarImg : clientAvatarImg;
+  let av = f.customAvatar;
+  if (!av && !isFFA) av = f.isPlayer ? hostAvatarImg : clientAvatarImg;
+  
   if (av && av.complete) {
     ctx.save();
     ctx.beginPath();

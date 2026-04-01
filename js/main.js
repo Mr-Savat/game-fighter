@@ -403,6 +403,9 @@ document.getElementById('avatarInput').addEventListener('change', function () {
       compressedImg.onload = () => {
         if (isOnline && !isHost) {
           clientAvatarImg = compressedImg;
+          if (typeof conn !== 'undefined' && conn && conn.open) {
+             conn.send({ type: 'avatar', avatar: scaledDataUrl });
+          }
         } else {
           hostAvatarImg = compressedImg;
         }

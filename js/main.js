@@ -145,9 +145,10 @@ function checkGameOver() {
     if (aliveCount > 1 && matchTime > 0) return; // Keep playing
     
     gameRunning = false;
+    let timeOut = (matchTime <= 0);
     let winner = fighters.find(f => f.health > 0);
     let isLocalVictory = (winner === fighters[0]);
-    if (isOnline && !isHost && winner && winner.isClientMe) isLocalVictory = true; // Wait we will map isClientMe in network.js
+    if (isOnline && !isHost && winner && winner.isClientMe) isLocalVictory = true; 
 
     if (isLocalVictory) playSound('win');
     else playSound('lose');
@@ -157,14 +158,16 @@ function checkGameOver() {
     document.getElementById('pScore').parentNode.style.display = 'none'; // Hide scores for FFA
 
     if (timeOut) title.textContent = 'TIME OUT';
-    else title.textContent = winner ? 'GAME OVER\nWINNER!' : 'DRAW!';
+    else title.textContent = winner ? 'GAME OVER - WINNER!' : 'DRAW!';
     
     subtitle.textContent = isLocalVictory ? 'You survived the Brawl!' : 'You were defeated!';
     title.className = isLocalVictory ? 'win' : 'lose';
     document.getElementById('restartBtn').textContent = (isOnline && !isHost) ? 'WAITING FOR HOST...' : 'NEW MATCH';
     document.getElementById('overlay').classList.add('active');
 
-    if (isOnline && isHost) sendNetworkStateFFA();
+    if (isOnline && isHost) {
+        if (typeof sendNetworkStateFFA === 'function') sendNetworkStateFFA();
+    }
     return;
   }
 

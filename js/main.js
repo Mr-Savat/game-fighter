@@ -436,6 +436,10 @@ document.getElementById('restartBtn').addEventListener('click', () => {
   startGame();
 });
 
+document.getElementById('homeBtn').addEventListener('click', () => {
+  window.location.href = window.location.origin + window.location.pathname;
+});
+
 
 // ── Fullscreen ────────────────────────────────
 function toggleFS() {

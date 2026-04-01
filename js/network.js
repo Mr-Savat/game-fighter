@@ -259,8 +259,12 @@ function initHostFFA() {
     let client = { conn: connection, id: connection.peer, keys: {}, shiftJustPressed: false, avatar: null };
     ffaConnections.push(client);
     
+    // Assign a distinct neon color sequentially
+    const FFA_COLORS = ['#ff3a3a', '#00cfff', '#00ff33', '#ffea00', '#b200ff', '#ff8800', '#ff00aa', '#ffffff'];
+    const pColor = FFA_COLORS[fighters.length % FFA_COLORS.length];
+    
     // Add dummy fighter so it exists when we start
-    fighters.push(createFighter({ x: 200 + Math.random() * 400, y: GROUND, color: Math.random() > 0.5 ? '#00cfff' : '#00ff33', isPlayer: false, facing: -1 }));
+    fighters.push(createFighter({ x: 200 + Math.random() * 400, y: GROUND, color: pColor, isPlayer: false, facing: -1 }));
 
     connection.on('data', data => {
       if (data.type === 'input') {

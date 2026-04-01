@@ -71,7 +71,7 @@ document.addEventListener('keyup', e => { keys[e.code] = false; });
 
 
 // ── Player Input ──────────────────────────────
-function handleMovement(f, inputMap, isShiftPressed) {
+function handleMovement(f, inputMap = keys, isShiftPressed = shiftJustPressed) {
   if (f.isPlayer === false && !(isOnline && isHost)) return;
 
   // Crouching
@@ -192,17 +192,35 @@ function gameLoop() {
     }
   }
 
-  handleMovement(player);
-  handleAI(enemy, player);
-  applyAI(enemy, player);
+  if (isOnline && !isHost) {
+    // Client strictly sends inputs to the host, physics are skipped
+    sendNetworkInput(keys, shiftJustPressed);
+    shiftJustPressed = false;
+  } else {
+    // Host/Solo handles local inputs
+    handleMovement(player, keys, shiftJustPressed);
+    shiftJustPressed = false;
 
-  applyPhysics(player);
-  applyPhysics(enemy);
+    if (isOnline && isHost) {
+      handleMovement(enemy, remoteKeys, remoteShiftJustPressed);
+      remoteShiftJustPressed = false;
+    } else {
+      handleAI(enemy, player);
+      applyAI(enemy, player);
+    }
 
-  checkAttackHit(player, enemy);
-  checkAttackHit(enemy, player);
+    applyPhysics(player);
+    applyPhysics(enemy);
 
-  updateParticles();
+    checkAttackHit(player, enemy);
+    checkAttackHit(enemy, player);
+
+    updateParticles();
+
+    if (isOnline && isHost) {
+      sendNetworkState();
+    }
+  }
 
   // Screen shake
   let ox = 0, oy = 0;

@@ -56,6 +56,7 @@ const MAX_ROUNDS = 3;
 
 // ── Game State ────────────────────────────────
 let gameRunning = false;
+let isFFA = false;
 let animId = null;
 let matchTime = 99;
 let timerFrames = 0;
@@ -115,6 +116,12 @@ function handleMovement(f, inputMap = keys, isShiftPressed = shiftJustPressed) {
 
 // ── HUD Update ────────────────────────────────
 function updateHUD() {
+  if (isFFA) {
+    document.getElementById('hud').style.display = 'none';
+    return;
+  }
+  document.getElementById('hud').style.display = 'flex';
+  
   playerHealthBar.style.width = (player.health / player.maxHealth * 100) + '%';
   enemyHealthBar.style.width = (enemy.health / enemy.maxHealth * 100) + '%';
   playerEnergyBar.style.width = (player.energy / player.maxEnergy * 100) + '%';
@@ -133,6 +140,35 @@ function updateHUD() {
 
 // ── Game Over ─────────────────────────────────
 function checkGameOver() {
+  if (isFFA) {
+    let aliveCount = fighters.filter(f => f.health > 0).length;
+    if (aliveCount > 1 && matchTime > 0) return; // Keep playing
+    
+    gameRunning = false;
+    let winner = fighters.find(f => f.health > 0);
+    let isLocalVictory = (winner === fighters[0]);
+    if (isOnline && !isHost && winner && winner.isClientMe) isLocalVictory = true; // Wait we will map isClientMe in network.js
+
+    if (isLocalVictory) playSound('win');
+    else playSound('lose');
+    
+    const title = document.getElementById('overlayTitle');
+    const subtitle = document.getElementById('overlaySubtitle');
+    document.getElementById('pScore').parentNode.style.display = 'none'; // Hide scores for FFA
+
+    if (timeOut) title.textContent = 'TIME OUT';
+    else title.textContent = winner ? 'GAME OVER\nWINNER!' : 'DRAW!';
+    
+    subtitle.textContent = isLocalVictory ? 'You survived the Brawl!' : 'You were defeated!';
+    title.className = isLocalVictory ? 'win' : 'lose';
+    document.getElementById('restartBtn').textContent = (isOnline && !isHost) ? 'WAITING FOR HOST...' : 'NEW MATCH';
+    document.getElementById('overlay').classList.add('active');
+
+    if (isOnline && isHost) sendNetworkStateFFA();
+    return;
+  }
+
+  // ==== ORIGINAL 1V1 GAME OVER LOGIC ====
   if (player.health > 0 && enemy.health > 0 && matchTime > 0) return;
 
   gameRunning = false;
@@ -213,31 +249,66 @@ function gameLoop() {
 
   if (isOnline && !isHost) {
     // Client strictly sends inputs to the host, physics are skipped
-    sendNetworkInput(keys, shiftJustPressed);
+    if (isFFA) {
+      if (typeof sendNetworkInputFFA === 'function') sendNetworkInputFFA(keys, shiftJustPressed);
+    } else {
+      sendNetworkInput(keys, shiftJustPressed);
+    }
     shiftJustPressed = false;
   } else {
-    // Host/Solo handles local inputs
-    handleMovement(player, keys, shiftJustPressed);
-    shiftJustPressed = false;
-
-    if (isOnline && isHost) {
-      handleMovement(enemy, remoteKeys, remoteShiftJustPressed);
-      remoteShiftJustPressed = false;
+    if (isFFA) {
+      // ==== NEW FFA PHYSICS ENGINE ====
+      for (let i = 0; i < fighters.length; i++) {
+        let f = fighters[i];
+        if (f.health <= 0) continue; // Setup dead corps!
+        if (i === 0) {
+          handleMovement(f, keys, shiftJustPressed);
+        } else if (isOnline && typeof ffaConnections !== 'undefined') {
+          let clientData = ffaConnections[i - 1]; // Host is 0
+          if (clientData) {
+            handleMovement(f, clientData.keys, clientData.shiftJustPressed);
+            clientData.shiftJustPressed = false;
+          }
+        }
+        applyPhysics(f);
+      }
+      shiftJustPressed = false;
+      
+      // O(N^2) Attack checking!
+      for (let i = 0; i < fighters.length; i++) {
+        for (let j = 0; j < fighters.length; j++) {
+           if (i !== j && fighters[i].health > 0 && fighters[j].health > 0) {
+             checkAttackHit(fighters[i], fighters[j]);
+           }
+        }
+      }
+      
+      updateParticles();
+      if (isOnline && isHost && typeof sendNetworkStateFFA === 'function') sendNetworkStateFFA();
     } else {
-      handleAI(enemy, player);
-      applyAI(enemy, player);
-    }
+      // ==== ORIGINAL 1V1 PHYSICS ENGINE ====
+      handleMovement(player, keys, shiftJustPressed);
+      shiftJustPressed = false;
 
-    applyPhysics(player);
-    applyPhysics(enemy);
+      if (isOnline && isHost) {
+        handleMovement(enemy, remoteKeys, remoteShiftJustPressed);
+        remoteShiftJustPressed = false;
+      } else {
+        handleAI(enemy, player);
+        applyAI(enemy, player);
+      }
 
-    checkAttackHit(player, enemy);
-    checkAttackHit(enemy, player);
+      applyPhysics(player);
+      applyPhysics(enemy);
 
-    updateParticles();
+      checkAttackHit(player, enemy);
+      checkAttackHit(enemy, player);
 
-    if (isOnline && isHost) {
-      sendNetworkState();
+      updateParticles();
+
+      if (isOnline && isHost) {
+        sendNetworkState();
+      }
     }
   }
 
@@ -255,8 +326,20 @@ function gameLoop() {
   ctx.clearRect(-20, -20, W + 40, H + 40);
   drawBackground();
   drawParticles();
-  drawFighter(player);
-  drawFighter(enemy);
+  
+  if (isFFA) {
+    for (let f of fighters) {
+      if (f.health > 0) {
+        if (typeof drawSpecialEffect === 'function') drawSpecialEffect(f);
+        drawFighter(f);
+        if (typeof drawFFAHeadHud === 'function') drawFFAHeadHud(f);
+      }
+    }
+  } else {
+    drawFighter(player);
+    drawFighter(enemy);
+  }
+  
   drawAnnounce();
 
   ctx.restore();

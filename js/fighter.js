@@ -38,10 +38,30 @@ function createFighter({ x, y, color, isPlayer, facing }) {
 }
 
 let player, enemy;
+let fighters = [];
 
 function initFighters() {
-  player = createFighter({ x: 80,  y: GROUND, color: '#ff3a3a', isPlayer: true,  facing:  1 });
-  enemy  = createFighter({ x: 668, y: GROUND, color: '#00cfff', isPlayer: false, facing: -1 });
+  player = createFighter({ x: W / 4,  y: GROUND, color: '#ff3a3a', isPlayer: true,  facing:  1 });
+  enemy  = createFighter({ x: W * 0.75, y: GROUND, color: '#00cfff', isPlayer: false, facing: -1 });
+
+  if (typeof isFFA !== 'undefined' && isFFA) {
+    if (fighters.length === 0) {
+       fighters = [player];
+    } else {
+       // Reset existing fighters rather than destroying the array
+       for (let i = 0; i < fighters.length; i++) {
+          let f = fighters[i];
+          f.health = f.maxHealth;
+          f.energy = 0;
+          f.x = 200 + (Math.random() * (W - 400));
+          f.y = GROUND;
+          f.vx = 0; f.vy = 0;
+       }
+       fighters[0] = player; // keep host updated
+    }
+  } else {
+    fighters = [player, enemy]; // Standard 1v1 Mode
+  }
 }
 
 

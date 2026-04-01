@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BRAWLBIT v2 — Street Fighter</title>
+  <title>Street Fighter</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 
@@ -12,8 +12,8 @@
 
   <!-- START SCREEN -->
   <div id="startScreen">
-    <div class="logo">BRAWLBIT</div>
-    <div class="logo-sub">v2 · Street Fighter</div>
+    <div class="logo">FIGHTER</div>
+    <div class="logo-sub">Street Fighter</div>
 
     <div class="avatar-panel">
       <h3>// Your Fighter</h3>
@@ -26,21 +26,33 @@
 
     <div class="controls-hint">
       <span>A / D</span> (Hold Back = BLOCK) &nbsp;|&nbsp; <span>S</span> CROUCH &nbsp;|&nbsp; <span>W</span> JUMP<br>
-      <span>SPACE</span> PUNCH &nbsp;|&nbsp; <span>K</span> KICK &nbsp;|&nbsp; <span class="special">SHIFT</span> SPECIAL
+      <span>SPACE</span> PUNCH &nbsp;|&nbsp; <span>K</span> KICK &nbsp;|&nbsp; <span class="special">SHIFT</span>
+      SPECIAL
     </div>
 
     <div style="display: flex; gap: 16px; margin-top: 10px;">
       <button class="btn-start" id="startBtn">PLAY SOLO</button>
-      <button class="btn-start" id="hostBtn" style="background: linear-gradient(135deg, var(--neon-purple), #80f); box-shadow: 0 0 24px rgba(191,95,255,0.4);">HOST ONLINE</button>
+      <button class="btn-start" id="hostBtn"
+        style="background: linear-gradient(135deg, var(--neon-purple), #80f); box-shadow: 0 0 24px rgba(191,95,255,0.4);">HOST
+        1v1</button>
+      <button class="btn-start" id="hostFfaBtn"
+        style="background: linear-gradient(135deg, #ff0055, #ff6b35); box-shadow: 0 0 24px rgba(255,0,85,0.4);">HOST
+        FFA</button>
     </div>
 
     <!-- Online waiting panel -->
-    <div id="onlinePanel" style="display: none; flex-direction: column; align-items: center; gap: 12px; margin-top: 10px; background: var(--panel); padding: 16px; border: 1px solid var(--neon-purple); border-radius: 8px; box-shadow: 0 0 16px rgba(191,95,255,0.2);">
-      <div id="onlineStatus" style="color: var(--neon-purple); font-size: 14px; letter-spacing: 2px; text-transform: uppercase;">Connecting to Network...</div>
-      <input type="text" id="inviteLink" readonly style="background: #0a0a0f; color: var(--neon-blue); border: 1px solid #333; padding: 10px; width: 320px; text-align: center; font-family: monospace; font-size: 12px; border-radius: 4px; cursor: copy;" onclick="this.select()" value="Loading...">
+    <div id="onlinePanel"
+      style="display: none; flex-direction: column; align-items: center; gap: 12px; margin-top: 10px; background: var(--panel); padding: 16px; border: 1px solid var(--neon-purple); border-radius: 8px; box-shadow: 0 0 16px rgba(191,95,255,0.2);">
+      <div id="onlineStatus"
+        style="color: var(--neon-purple); font-size: 14px; letter-spacing: 2px; text-transform: uppercase;">Connecting
+        to Network...</div>
+      <input type="text" id="inviteLink" readonly
+        style="background: #0a0a0f; color: var(--neon-blue); border: 1px solid #333; padding: 10px; width: 320px; text-align: center; font-family: monospace; font-size: 12px; border-radius: 4px; cursor: copy;"
+        onclick="this.select()" value="Loading...">
       <div id="linkHint" style="font-size: 11px; color: #888;">Send this shareable link to a friend!</div>
-      
-      <button class="btn-start" id="startOnlineBtn" style="display: none; font-size: 14px; padding: 10px 24px;">START ALL Players Ready</button>
+
+      <button class="btn-start" id="startOnlineBtn" style="display: none; font-size: 14px; padding: 10px 24px;">START
+        ALL Players Ready</button>
     </div>
   </div>
 

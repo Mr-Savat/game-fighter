@@ -154,6 +154,34 @@ function drawAttackEffect(f) {
   ctx.restore();
 }
 
+function drawFFAHeadHud(f) {
+  const cx = f.x + f.w / 2;
+  const topY = f.y - (f.isCrouching ? 54 : 82) - 30; // Float above head
+  
+  ctx.save();
+  // Name
+  ctx.font = '12px "Share Tech Mono", monospace';
+  ctx.textAlign = 'center';
+  ctx.fillStyle = f.isClientMe || (isHost && fighters.indexOf(f) === 0) ? '#ffea00' : '#ffffff';
+  ctx.fillText(f.name || `PLAYER ${fighters.indexOf(f) + 1}`, cx, topY - 8);
+
+  // Background Bar
+  ctx.fillStyle = '#111';
+  ctx.fillRect(cx - 24, topY, 48, 6);
+  
+  // Health Bar (Red/Blood)
+  const hpRatio = Math.max(0, f.health / f.maxHealth);
+  ctx.fillStyle = (f.hitFlash > 0 && f.hitFlash % 2) ? '#ffffff' : '#ff0033';
+  ctx.fillRect(cx - 24, topY, 48 * hpRatio, 6);
+  
+  // Border
+  ctx.strokeStyle = '#333';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(cx - 24, topY, 48, 6);
+  
+  ctx.restore();
+}
+
 function drawSpecialEffect(f) {
   if (!f.specialAttacking) return;
   const progress = f.specialTimer / SPECIAL_FRAMES;

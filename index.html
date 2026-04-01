@@ -38,7 +38,9 @@
     <div id="onlinePanel" style="display: none; flex-direction: column; align-items: center; gap: 12px; margin-top: 10px; background: var(--panel); padding: 16px; border: 1px solid var(--neon-purple); border-radius: 8px; box-shadow: 0 0 16px rgba(191,95,255,0.2);">
       <div id="onlineStatus" style="color: var(--neon-purple); font-size: 14px; letter-spacing: 2px; text-transform: uppercase;">Connecting to Network...</div>
       <input type="text" id="inviteLink" readonly style="background: #0a0a0f; color: var(--neon-blue); border: 1px solid #333; padding: 10px; width: 320px; text-align: center; font-family: monospace; font-size: 12px; border-radius: 4px; cursor: copy;" onclick="this.select()" value="Loading...">
-      <div style="font-size: 11px; color: #888;">Send this shareable link to a friend!</div>
+      <div id="linkHint" style="font-size: 11px; color: #888;">Send this shareable link to a friend!</div>
+      
+      <button class="btn-start" id="startOnlineBtn" style="display: none; font-size: 14px; padding: 10px 24px;">START ALL Players Ready</button>
     </div>
   </div>
 
@@ -46,7 +48,7 @@
   <div id="gameWrapper">
     <div id="hud">
       <div class="fighter-hud">
-        <div class="fighter-name">PLAYER</div>
+        <div class="fighter-name" id="playerNameDisplay">PLAYER</div>
         <div class="health-track" style="width:350px">
           <div id="playerHealthBar"></div>
         </div>
@@ -62,7 +64,7 @@
         <div class="round-score" id="roundScore"><span id="pScore">0</span> — <span id="eScore">0</span></div>
       </div>
       <div class="fighter-hud enemy">
-        <div class="fighter-name">ENEMY</div>
+        <div class="fighter-name" id="enemyNameDisplay">ENEMY</div>
         <div class="health-track" style="width:350px">
           <div id="enemyHealthBar"></div>
         </div>

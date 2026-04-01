@@ -277,8 +277,9 @@ function drawFighter(f) {
   ctx.fillStyle = f.color;
   ctx.fill();
 
-  // Avatar face on head (player only)
-  if (f.isPlayer && playerAvatarImg && playerAvatarImg.complete) {
+  // Avatar face on head
+  let av = f.isPlayer ? hostAvatarImg : clientAvatarImg;
+  if (av && av.complete) {
     ctx.save();
     ctx.beginPath();
     ctx.arc(cx, headCY, headR - 1, 0, Math.PI * 2);
@@ -287,7 +288,7 @@ function drawFighter(f) {
       ctx.translate(cx * 2, 0);
       ctx.scale(-1, 1);
     }
-    ctx.drawImage(playerAvatarImg, cx - headR, headCY - headR, headR*2, headR*2);
+    ctx.drawImage(av, cx - headR, headCY - headR, headR*2, headR*2);
     ctx.restore();
   } else {
     // Eye

@@ -23,7 +23,8 @@ const eScoreEl = document.getElementById('eScore');
 
 
 // ── Avatar ────────────────────────────────────
-let playerAvatarImg = null;
+let hostAvatarImg = null;
+let clientAvatarImg = null;
 
 function createDefaultAvatar() {
   const ac = document.createElement('canvas');
@@ -36,9 +37,13 @@ function createDefaultAvatar() {
   ax.fillStyle = '#cc2222'; ax.fillRect(12, 32, 40, 24);
   ax.fillStyle = '#ffcc88'; ax.fillRect(4, 32, 8, 20); ax.fillRect(52, 32, 8, 20);
   ax.fillStyle = '#334'; ax.fillRect(14, 56, 14, 8); ax.fillRect(36, 56, 14, 8);
-  playerAvatarImg = new Image();
-  playerAvatarImg.src = ac.toDataURL();
-  document.getElementById('avatarPreview').src = playerAvatarImg.src;
+  
+  hostAvatarImg = new Image();
+  hostAvatarImg.src = ac.toDataURL();
+  clientAvatarImg = new Image();
+  clientAvatarImg.src = ac.toDataURL();
+
+  document.getElementById('avatarPreview').src = hostAvatarImg.src;
 }
 
 
@@ -302,8 +307,25 @@ document.getElementById('avatarInput').addEventListener('change', function () {
   reader.onload = e => {
     const img = new Image();
     img.onload = () => {
-      playerAvatarImg = img;
-      document.getElementById('avatarPreview').src = e.target.result;
+      // Scale down image to 64x64 to prevent WebRTC payload limit crashes
+      const tmpCanvas = document.createElement('canvas');
+      tmpCanvas.width = 64;
+      tmpCanvas.height = 64;
+      const tCtx = tmpCanvas.getContext('2d');
+      tCtx.drawImage(img, 0, 0, 64, 64);
+      
+      const scaledDataUrl = tmpCanvas.toDataURL('image/jpeg', 0.8);
+      
+      const compressedImg = new Image();
+      compressedImg.onload = () => {
+        if (isOnline && !isHost) {
+          clientAvatarImg = compressedImg;
+        } else {
+          hostAvatarImg = compressedImg;
+        }
+        document.getElementById('avatarPreview').src = scaledDataUrl;
+      };
+      compressedImg.src = scaledDataUrl;
     };
     img.src = e.target.result;
   };

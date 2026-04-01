@@ -227,6 +227,12 @@ function initHostFFA() {
     document.getElementById('playerNameDisplay').textContent = 'YOU (HOST)';
     document.getElementById('enemyNameDisplay').textContent = 'BRAWL';
     
+    // Make sure Host exists mechanically BEFORE clients join!
+    // fighter.createFighter doesn't have W or GROUND if W isn't defined? It's fine if they are globals.
+    if (fighters.length === 0) {
+       fighters.push(createFighter({ x: 200, y: GROUND, color: '#ff3a3a', isPlayer: true, facing: 1 }));
+    }
+
     const link = window.location.origin + window.location.pathname + '?joinFFA=' + id;
     document.getElementById('inviteLink').value = link;
     document.getElementById('onlineStatus').textContent = 'Waiting for Players...';

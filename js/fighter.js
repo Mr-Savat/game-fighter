@@ -48,16 +48,16 @@ function initFighters() {
     if (fighters.length === 0) {
        fighters = [player];
     } else {
-       // Reset existing fighters rather than destroying the array
+       // Reset existing fighters safely
        for (let i = 0; i < fighters.length; i++) {
           let f = fighters[i];
           f.health = f.maxHealth;
           f.energy = 0;
-          f.x = 200 + (Math.random() * (W - 400));
+          f.x = 200 + (Math.random() * (Math.max(W - 400, 100)));
           f.y = GROUND;
           f.vx = 0; f.vy = 0;
+          if (i === 0) f.isPlayer = true; // explicitly ensure Host is player
        }
-       fighters[0] = player; // keep host updated
     }
   } else {
     fighters = [player, enemy]; // Standard 1v1 Mode

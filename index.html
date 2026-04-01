@@ -26,11 +26,20 @@
 
     <div class="controls-hint">
       <span>A / D</span> (Hold Back = BLOCK) &nbsp;|&nbsp; <span>S</span> CROUCH &nbsp;|&nbsp; <span>W</span> JUMP<br>
-      <span>SPACE</span> PUNCH &nbsp;|&nbsp; <span>K</span> KICK &nbsp;|&nbsp; <span class="special">SHIFT</span>
-      SPECIAL
+      <span>SPACE</span> PUNCH &nbsp;|&nbsp; <span>K</span> KICK &nbsp;|&nbsp; <span class="special">SHIFT</span> SPECIAL
     </div>
 
-    <button class="btn-start" id="startBtn">FIGHT!</button>
+    <div style="display: flex; gap: 16px; margin-top: 10px;">
+      <button class="btn-start" id="startBtn">PLAY SOLO</button>
+      <button class="btn-start" id="hostBtn" style="background: linear-gradient(135deg, var(--neon-purple), #80f); box-shadow: 0 0 24px rgba(191,95,255,0.4);">HOST ONLINE</button>
+    </div>
+
+    <!-- Online waiting panel -->
+    <div id="onlinePanel" style="display: none; flex-direction: column; align-items: center; gap: 12px; margin-top: 10px; background: var(--panel); padding: 16px; border: 1px solid var(--neon-purple); border-radius: 8px; box-shadow: 0 0 16px rgba(191,95,255,0.2);">
+      <div id="onlineStatus" style="color: var(--neon-purple); font-size: 14px; letter-spacing: 2px; text-transform: uppercase;">Connecting to Network...</div>
+      <input type="text" id="inviteLink" readonly style="background: #0a0a0f; color: var(--neon-blue); border: 1px solid #333; padding: 10px; width: 320px; text-align: center; font-family: monospace; font-size: 12px; border-radius: 4px; cursor: copy;" onclick="this.select()" value="Loading...">
+      <div style="font-size: 11px; color: #888;">Send this shareable link to a friend!</div>
+    </div>
   </div>
 
   <!-- GAME SCREEN -->
@@ -87,7 +96,12 @@
     <button class="btn-start" id="restartBtn" style="font-size:14px;padding:13px 36px">REMATCH</button>
   </div>
 
+  <!-- Networking Library -->
+  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+
+  <!-- Game Scripts -->
   <script src="js/audio.js"></script>
+  <script src="js/network.js"></script>
   <script src="js/engine.js"></script>
   <script src="js/fighter.js"></script>
   <script src="js/render.js"></script>

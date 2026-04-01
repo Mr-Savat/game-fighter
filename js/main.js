@@ -71,11 +71,11 @@ document.addEventListener('keyup', e => { keys[e.code] = false; });
 
 
 // ── Player Input ──────────────────────────────
-function handleMovement(f) {
-  if (!f.isPlayer) return;
+function handleMovement(f, inputMap, isShiftPressed) {
+  if (f.isPlayer === false && !(isOnline && isHost)) return;
 
   // Crouching
-  if (keys['KeyS'] && f.onGround) {
+  if (inputMap['KeyS'] && f.onGround) {
     f.isCrouching = true;
     f.vx = 0;
   } else {
@@ -83,26 +83,28 @@ function handleMovement(f) {
   }
 
   // Blocking
-  f.isBlocking = (!f.isCrouching && f.onGround && ((f.facing === 1 && keys['KeyA']) || (f.facing === -1 && keys['KeyD'])));
+  f.isBlocking = (!f.isCrouching && f.onGround && ((f.facing === 1 && inputMap['KeyA']) || (f.facing === -1 && inputMap['KeyD'])));
 
+  // Walking
   if (!f.isCrouching) {
-    if (keys['KeyA']) { f.vx = -f.speed; f.facing = -1; }
-    else if (keys['KeyD']) { f.vx = f.speed; f.facing = 1; }
+    if (inputMap['KeyA']) { f.vx = -f.speed; f.facing = -1; }
+    else if (inputMap['KeyD']) { f.vx = f.speed; f.facing = 1; }
     else { f.vx = 0; }
   }
 
-  if (keys['KeyW'] && f.onGround && !f.isCrouching) { f.vy = f.jumpForce; f.onGround = false; }
+  // Jumping
+  if (inputMap['KeyW'] && f.onGround && !f.isCrouching) { f.vy = f.jumpForce; f.onGround = false; }
 
+  // Attacks
   if (f.attackCooldown <= 0 && !f.specialAttacking) {
-    if (keys['Space']) triggerAttack(f, 'punch');
-    else if (keys['KeyK']) triggerAttack(f, 'kick');
+    if (inputMap['Space']) triggerAttack(f, 'punch');
+    else if (inputMap['KeyK']) triggerAttack(f, 'kick');
   }
 
-  // Special: Shift (once per press)
-  if (shiftJustPressed && f.energy >= f.maxEnergy && f.specialCooldown <= 0 && !f.attacking) {
+  // Special
+  if (isShiftPressed && f.energy >= f.maxEnergy && f.specialCooldown <= 0 && !f.attacking) {
     triggerSpecial(f);
   }
-  shiftJustPressed = false;
 }
 
 

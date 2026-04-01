@@ -86,6 +86,17 @@ function initClient(hostId) {
         enemyScore = data.eScore;
         currentRound = data.round;
         
+        // Force the Client's Game Over screen to perfectly match the Host's authoritative score
+        if (!isHost && !gameRunning) {
+          document.getElementById('pScore').textContent = playerScore;
+          document.getElementById('eScore').textContent = enemyScore;
+          if (playerScore < 2 && enemyScore < 2) {
+            document.getElementById('roundResult').textContent = `Score: ${playerScore} — ${enemyScore}`;
+          } else {
+            document.getElementById('roundResult').textContent = `FINAL SCORE  ${playerScore} — ${enemyScore}`;
+          }
+        }
+
         // If Host restarted the match/round automatically
         if (data.running && !gameRunning) {
           startGame();

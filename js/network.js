@@ -95,6 +95,11 @@ function initClient(hostId) {
        location.reload();
     });
   });
+
+  peer.on('error', (err) => {
+    alert("Connection Error: " + err.type + "\nMake sure you copied the exact, newest link!");
+    window.location.href = window.location.origin + window.location.pathname;
+  });
 }
 
 function sendNetworkInput(currentKeys, shiftJust) {

@@ -141,8 +141,16 @@ function checkGameOver() {
     playerWon = enemy.health <= 0;
   }
 
-  if (playerWon) { playerScore++; playSound('win'); }
-  else { enemyScore++; playSound('lose'); }
+  let isLocalVictory = (isOnline && !isHost) ? !playerWon : playerWon;
+
+  // Only the host (or solo) strictly dictates the score increment
+  if (!isOnline || isHost) {
+    if (playerWon) playerScore++;
+    else enemyScore++;
+  }
+
+  if (isLocalVictory) playSound('win');
+  else playSound('lose');
 
   const title = document.getElementById('overlayTitle');
   const subtitle = document.getElementById('overlaySubtitle');
@@ -155,18 +163,19 @@ function checkGameOver() {
   else title.textContent = playerWon ? 'K.O.' : 'K.O.';
 
   if (playerScore >= 2 || enemyScore >= 2) {
-    if (!timeOut) title.textContent = playerWon ? 'VICTORY!' : 'DEFEATED!';
-    subtitle.textContent = playerWon ? 'You win the match!' : 'CPU wins the match!';
+    if (!timeOut) title.textContent = isLocalVictory ? 'VICTORY!' : 'DEFEATED!';
+    subtitle.textContent = isLocalVictory ? 'You win the match!' : (isOnline ? 'Opponent wins the match!' : 'CPU wins the match!');
     roundRes.textContent = `FINAL SCORE  ${playerScore} — ${enemyScore}`;
-    title.className = playerWon ? 'win' : 'lose';
+    title.className = isLocalVictory ? 'win' : 'lose';
     document.getElementById('restartBtn').textContent = 'NEW MATCH';
   } else {
-    if (!timeOut) title.textContent = playerWon ? 'ROUND WIN!' : 'ROUND LOST!';
+    if (!timeOut) title.textContent = isLocalVictory ? 'ROUND WIN!' : 'ROUND LOST!';
     subtitle.textContent = `Round ${currentRound} complete · Play again`;
     roundRes.textContent = `Score: ${playerScore} — ${enemyScore}`;
-    title.className = playerWon ? 'win' : 'lose';
+    title.className = isLocalVictory ? 'win' : 'lose';
     document.getElementById('restartBtn').textContent = `ROUND ${currentRound + 1}`;
-    currentRound++;
+    
+    if (!isOnline || isHost) currentRound++;
   }
 
   document.getElementById('overlay').classList.add('active');

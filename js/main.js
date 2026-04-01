@@ -167,13 +167,13 @@ function checkGameOver() {
     subtitle.textContent = isLocalVictory ? 'You win the match!' : (isOnline ? 'Opponent wins the match!' : 'CPU wins the match!');
     roundRes.textContent = `FINAL SCORE  ${playerScore} — ${enemyScore}`;
     title.className = isLocalVictory ? 'win' : 'lose';
-    document.getElementById('restartBtn').textContent = 'NEW MATCH';
+    document.getElementById('restartBtn').textContent = (isOnline && !isHost) ? 'WAITING FOR HOST...' : 'NEW MATCH';
   } else {
     if (!timeOut) title.textContent = isLocalVictory ? 'ROUND WIN!' : 'ROUND LOST!';
     subtitle.textContent = `Round ${currentRound} complete · Play again`;
     roundRes.textContent = `Score: ${playerScore} — ${enemyScore}`;
     title.className = isLocalVictory ? 'win' : 'lose';
-    document.getElementById('restartBtn').textContent = `ROUND ${currentRound + 1}`;
+    document.getElementById('restartBtn').textContent = (isOnline && !isHost) ? 'WAITING FOR HOST...' : `ROUND ${currentRound + 1}`;
     
     if (!isOnline || isHost) currentRound++;
   }
@@ -313,6 +313,8 @@ document.getElementById('startBtn').addEventListener('click', () => {
 });
 
 document.getElementById('restartBtn').addEventListener('click', () => {
+  if (isOnline && !isHost) return; // Client waits for host to automatically sync next round
+  
   // If match over, full reset
   if (playerScore >= 2 || enemyScore >= 2) fullReset();
   startGame();

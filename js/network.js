@@ -84,8 +84,13 @@ function initClient(hostId) {
         matchTime = data.time;
         playerScore = data.pScore;
         enemyScore = data.eScore;
+        currentRound = data.round;
         
-        // Render network particles if any
+        // If Host restarted the match/round automatically
+        if (data.running && !gameRunning) {
+          startGame();
+        }
+
         if (data.particles) particles = data.particles;
       }
     });
@@ -117,6 +122,8 @@ function sendNetworkState() {
       time: matchTime,
       pScore: playerScore,
       eScore: enemyScore,
+      round: currentRound,
+      running: gameRunning,
       particles: particles
     });
   }

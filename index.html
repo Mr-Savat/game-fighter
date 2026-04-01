@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BRAWLBIT v2 — Street Fighter</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+  <!-- START SCREEN -->
+  <div id="startScreen">
+    <div class="logo">BRAWLBIT</div>
+    <div class="logo-sub">v2 · Street Fighter</div>
+
+    <div class="avatar-panel">
+      <h3>// Your Fighter</h3>
+      <img id="avatarPreview" src="" alt="Avatar">
+      <label class="upload-btn">
+        <div class="btn btn-ghost">📁 Upload Face</div>
+        <input type="file" id="avatarInput" accept="image/*">
+      </label>
+    </div>
+
+    <div class="controls-hint">
+      <span>A / D</span> (Hold Back = BLOCK) &nbsp;|&nbsp; <span>S</span> CROUCH &nbsp;|&nbsp; <span>W</span> JUMP<br>
+      <span>SPACE</span> PUNCH &nbsp;|&nbsp; <span>K</span> KICK &nbsp;|&nbsp; <span class="special">SHIFT</span>
+      SPECIAL
+    </div>
+
+    <button class="btn-start" id="startBtn">FIGHT!</button>
+  </div>
+
+  <!-- GAME SCREEN -->
+  <div id="gameWrapper">
+    <div id="hud">
+      <div class="fighter-hud">
+        <div class="fighter-name">PLAYER</div>
+        <div class="health-track" style="width:350px">
+          <div id="playerHealthBar"></div>
+        </div>
+        <div class="energy-track" style="width:350px">
+          <div id="playerEnergyBar"></div>
+        </div>
+      </div>
+      <div class="vs-col">
+        <div id="roundTimer"
+          style="font-family: 'Black Ops One', cursive; font-size: 28px; color: var(--neon-yellow); filter: drop-shadow(0 0 8px rgba(255,230,0,0.6));">
+          99</div>
+        <div id="roundLabel">ROUND</div>
+        <div class="round-score" id="roundScore"><span id="pScore">0</span> — <span id="eScore">0</span></div>
+      </div>
+      <div class="fighter-hud enemy">
+        <div class="fighter-name">ENEMY</div>
+        <div class="health-track" style="width:350px">
+          <div id="enemyHealthBar"></div>
+        </div>
+        <div class="energy-track" style="width:350px">
+          <div id="enemyEnergyBar"></div>
+        </div>
+      </div>
+    </div>
+
+    <canvas id="gameCanvas" width="820" height="430"></canvas>
+    <button id="fsBtn" onclick="toggleFS()" style="
+    margin-top:8px;
+    font-family:'Share Tech Mono',monospace;
+    font-size:11px;letter-spacing:2px;
+    background:transparent;border:1px solid #2a2a3a;
+    color:#555;padding:6px 16px;border-radius:4px;cursor:pointer;
+    text-transform:uppercase;transition:all 0.15s;
+  " onmouseover="this.style.color='#00cfff';this.style.borderColor='#00cfff'"
+      onmouseout="this.style.color='#555';this.style.borderColor='#2a2a3a'">
+      ⛶ FULLSCREEN
+    </button>
+  </div>
+
+  <div id="superReady">⚡ SUPER READY — PRESS SHIFT ⚡</div>
+
+  <!-- RESULT OVERLAY -->
+  <div id="overlay">
+    <div id="overlayTitle">GAME OVER</div>
+    <div id="roundResult">—</div>
+    <div id="overlaySubtitle">...</div>
+    <button class="btn-start" id="restartBtn" style="font-size:14px;padding:13px 36px">REMATCH</button>
+  </div>
+
+  <script src="js/audio.js"></script>
+  <script src="js/engine.js"></script>
+  <script src="js/fighter.js"></script>
+  <script src="js/render.js"></script>
+  <script src="js/main.js"></script>
+</body>
+
+</html>

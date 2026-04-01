@@ -1,0 +1,415 @@
+@import url('https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Share+Tech+Mono&display=swap');
+
+:root {
+  --neon-red: #ff2d2d;
+  --neon-blue: #00cfff;
+  --neon-yellow: #ffe600;
+  --neon-green: #39ff14;
+  --neon-purple: #bf5fff;
+  --dark: #0a0a0f;
+  --panel: #12121a;
+  --border: #2a2a3a;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--dark);
+  color: #fff;
+  font-family: 'Share Tech Mono', monospace;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 0, 0, 0.07) 2px, rgba(0, 0, 0, 0.07) 4px);
+  pointer-events: none;
+  z-index: 999;
+}
+
+/* ── START SCREEN ── */
+#startScreen {
+  position: fixed;
+  inset: 0;
+  background: var(--dark);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  z-index: 100;
+}
+
+.logo {
+  font-family: 'Black Ops One', cursive;
+  font-size: clamp(52px, 10vw, 88px);
+  letter-spacing: 4px;
+  background: linear-gradient(135deg, var(--neon-red) 0%, var(--neon-yellow) 55%, var(--neon-blue) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 20px rgba(255, 45, 45, 0.5));
+  animation: pulse 2s ease-in-out infinite alternate;
+}
+
+.logo-sub {
+  font-family: 'Black Ops One', cursive;
+  font-size: 13px;
+  letter-spacing: 8px;
+  color: var(--neon-yellow);
+  margin-top: -16px;
+  opacity: 0.7;
+}
+
+@keyframes pulse {
+  from {
+    filter: drop-shadow(0 0 12px rgba(255, 45, 45, 0.4));
+  }
+
+  to {
+    filter: drop-shadow(0 0 32px rgba(0, 207, 255, 0.6));
+  }
+}
+
+.avatar-panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  min-width: 260px;
+}
+
+.avatar-panel h3 {
+  font-family: 'Black Ops One', cursive;
+  font-size: 12px;
+  letter-spacing: 3px;
+  color: var(--neon-yellow);
+  text-transform: uppercase;
+}
+
+#avatarPreview {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  border: 2px solid var(--neon-blue);
+  object-fit: cover;
+  background: #1a1a2e;
+  box-shadow: 0 0 16px rgba(0, 207, 255, 0.3);
+}
+
+.upload-btn {
+  position: relative;
+  cursor: pointer;
+}
+
+.upload-btn input[type="file"] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+}
+
+.btn {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 2px;
+  padding: 9px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.15s;
+}
+
+.btn-ghost {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: #888;
+}
+
+.btn-ghost:hover {
+  border-color: var(--neon-blue);
+  color: var(--neon-blue);
+}
+
+.btn-start {
+  font-family: 'Black Ops One', cursive;
+  font-size: 18px;
+  letter-spacing: 4px;
+  padding: 15px 52px;
+  background: linear-gradient(135deg, var(--neon-red), #c00);
+  color: #fff;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 0 24px rgba(255, 45, 45, 0.4);
+  transition: all 0.2s;
+  text-transform: uppercase;
+}
+
+.btn-start:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 40px rgba(255, 45, 45, 0.7);
+}
+
+.controls-hint {
+  font-size: 11px;
+  color: #444;
+  letter-spacing: 2px;
+  text-align: center;
+  line-height: 2;
+}
+
+.controls-hint span {
+  color: var(--neon-yellow);
+}
+
+.controls-hint .special {
+  color: var(--neon-purple);
+}
+
+/* ── GAME SCREEN ── */
+#gameWrapper {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+
+#gameWrapper:fullscreen {
+  background: var(--dark);
+  justify-content: center;
+  width: 100vw;
+  height: 100vh;
+}
+
+#gameWrapper:fullscreen::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 0, 0, 0.07) 2px, rgba(0, 0, 0, 0.07) 4px);
+  pointer-events: none;
+  z-index: 999;
+}
+
+#gameCanvas {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+/* HUD */
+#hud {
+  width: 820px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 10px 0 4px;
+  gap: 10px;
+}
+
+.fighter-hud {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.fighter-hud.enemy {
+  align-items: flex-end;
+}
+
+.fighter-name {
+  font-family: 'Black Ops One', cursive;
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: #666;
+}
+
+.health-track {
+  height: 16px;
+  background: #0d0d0d;
+  border: 1px solid #222;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+#playerHealthBar {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, #ff2d2d, #ff6b35);
+  border-radius: 2px;
+  transition: width 0.08s;
+  box-shadow: 0 0 8px rgba(255, 45, 45, 0.5);
+}
+
+#enemyHealthBar {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, #00cfff, #0080ff);
+  border-radius: 2px;
+  float: right;
+  transition: width 0.08s;
+  box-shadow: 0 0 8px rgba(0, 207, 255, 0.5);
+}
+
+/* Energy bars */
+.energy-track {
+  height: 8px;
+  background: #0d0d0d;
+  border: 1px solid #1a1a2e;
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 2px;
+}
+
+#playerEnergyBar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--neon-purple), #ff80ff);
+  border-radius: 2px;
+  transition: width 0.1s;
+  box-shadow: 0 0 6px rgba(191, 95, 255, 0.7);
+}
+
+#enemyEnergyBar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--neon-purple), #ff80ff);
+  border-radius: 2px;
+  float: right;
+  transition: width 0.1s;
+  box-shadow: 0 0 6px rgba(191, 95, 255, 0.7);
+}
+
+/* Round score */
+.vs-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  padding: 0 6px;
+}
+
+.vs-badge {
+  font-family: 'Black Ops One', cursive;
+  font-size: 18px;
+  color: var(--neon-yellow);
+  filter: drop-shadow(0 0 8px rgba(255, 230, 0, 0.6));
+}
+
+.round-score {
+  font-family: 'Black Ops One', cursive;
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: #555;
+}
+
+.round-score span {
+  color: var(--neon-yellow);
+}
+
+#roundLabel {
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: #333;
+  text-transform: uppercase;
+}
+
+/* Canvas */
+#gameCanvas {
+  display: block;
+  border: 1px solid #1a1a2a;
+  box-shadow: 0 0 0 1px #000, 0 0 40px rgba(0, 0, 0, 0.8);
+}
+
+/* SUPER READY indicator */
+#superReady {
+  display: none;
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Black Ops One', cursive;
+  font-size: 13px;
+  letter-spacing: 4px;
+  color: var(--neon-purple);
+  filter: drop-shadow(0 0 10px rgba(191, 95, 255, 0.9));
+  animation: superPulse 0.6s ease-in-out infinite alternate;
+  z-index: 50;
+}
+
+@keyframes superPulse {
+  from {
+    opacity: 0.7;
+    transform: translateX(-50%) scale(1);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(-50%) scale(1.05);
+  }
+}
+
+/* Overlay */
+#overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.88);
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  z-index: 200;
+}
+
+#overlay.active {
+  display: flex;
+}
+
+#overlayTitle {
+  font-family: 'Black Ops One', cursive;
+  font-size: clamp(40px, 8vw, 68px);
+  letter-spacing: 4px;
+}
+
+#overlayTitle.lose {
+  color: var(--neon-red);
+  filter: drop-shadow(0 0 20px rgba(255, 45, 45, 0.7));
+}
+
+#overlayTitle.win {
+  color: var(--neon-yellow);
+  filter: drop-shadow(0 0 20px rgba(255, 230, 0, 0.7));
+}
+
+#overlaySubtitle {
+  font-size: 12px;
+  letter-spacing: 3px;
+  color: #555;
+  text-transform: uppercase;
+}
+
+#roundResult {
+  font-family: 'Black Ops One', cursive;
+  font-size: 16px;
+  letter-spacing: 3px;
+  color: #888;
+}

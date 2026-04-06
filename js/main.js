@@ -190,14 +190,18 @@ function updateHUD() {
 }
 
 
+let matchEndTimer = 0;
+
 // ── Game Over ─────────────────────────────────
 function checkGameOver() {
   if (isFFA) {
     let aliveCount = fighters.filter(f => f.health > 0).length;
-    if (aliveCount > 1 && matchTime > 0) return; // Keep playing
-    
-    gameRunning = false;
     let timeOut = (matchTime <= 0);
+    
+    if (aliveCount > 1 && !timeOut) return; // Keep playing
+    
+    matchEndTimer = 0;
+    gameRunning = false;
     let winner = fighters.find(f => f.health > 0);
     let isLocalVictory = false;
     if (winner) {
@@ -212,9 +216,11 @@ function checkGameOver() {
     const subtitle = document.getElementById('overlaySubtitle');
     document.getElementById('pScore').parentNode.style.display = 'none'; // Hide scores for FFA
 
+    let winnerName = winner ? (winner.name || `PLAYER ${fighters.indexOf(winner) + 1}`) : '';
+
     if (timeOut) title.textContent = 'TIME OUT';
     else if (!winner) title.textContent = 'DRAW!';
-    else title.textContent = isLocalVictory ? 'VICTORY!' : 'DEFEATED!';
+    else title.textContent = `${winnerName} WINS!`.toUpperCase();
     
     subtitle.textContent = isLocalVictory ? 'You survived the Brawl!' : 'You were defeated!';
     title.className = isLocalVictory ? 'win' : 'lose';

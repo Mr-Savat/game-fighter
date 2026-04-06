@@ -368,7 +368,8 @@ function drawAnnounce() {
   ctx.fillStyle = '#ffe600';
   ctx.shadowColor = '#ffe600';
   ctx.shadowBlur = 30;
-  ctx.fillText(announceText, W/2, H/2 - 20);
+  // Use W - 60 as maxWidth to prevent long texts like 'OPPONENT DROPPED' from spilling off-screen
+  ctx.fillText(announceText, W/2, H/2 - 20, W - 60);
   ctx.restore();
 }
 

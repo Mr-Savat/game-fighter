@@ -199,8 +199,11 @@ function checkGameOver() {
     gameRunning = false;
     let timeOut = (matchTime <= 0);
     let winner = fighters.find(f => f.health > 0);
-    let isLocalVictory = (winner === fighters[0]);
-    if (isOnline && !isHost && winner && winner.isClientMe) isLocalVictory = true; 
+    let isLocalVictory = false;
+    if (winner) {
+        if (isOnline && !isHost) isLocalVictory = winner.isClientMe;
+        else isLocalVictory = (winner === fighters[0]);
+    }
 
     if (isLocalVictory) playSound('win');
     else playSound('lose');
@@ -210,7 +213,8 @@ function checkGameOver() {
     document.getElementById('pScore').parentNode.style.display = 'none'; // Hide scores for FFA
 
     if (timeOut) title.textContent = 'TIME OUT';
-    else title.textContent = winner ? 'GAME OVER - WINNER!' : 'DRAW!';
+    else if (!winner) title.textContent = 'DRAW!';
+    else title.textContent = isLocalVictory ? 'VICTORY!' : 'DEFEATED!';
     
     subtitle.textContent = isLocalVictory ? 'You survived the Brawl!' : 'You were defeated!';
     title.className = isLocalVictory ? 'win' : 'lose';
@@ -300,7 +304,7 @@ function gameLoop() {
     return;
   }
 
-  if (matchTime > 0) {
+  if (matchTime > 0 && !isFFA) {
     timerFrames++;
     if (timerFrames >= 60) {
       matchTime--;

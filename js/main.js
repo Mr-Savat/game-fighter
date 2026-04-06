@@ -478,10 +478,12 @@ document.getElementById('avatarInput').addEventListener('change', function () {
         if (isOnline && !isHost) {
           clientAvatarImg = compressedImg;
           if (typeof conn !== 'undefined' && conn && conn.open) {
-             conn.send({ type: 'avatar', avatar: scaledDataUrl });
+             const myName = document.getElementById('playerNameInput').value.trim();
+             conn.send({ type: 'avatar', avatar: scaledDataUrl, name: myName });
           }
         } else {
           hostAvatarImg = compressedImg;
+          if (isOnline && isHost && typeof updateLobbyUI === 'function') updateLobbyUI();
         }
         document.getElementById('avatarPreview').src = scaledDataUrl;
       };
@@ -490,6 +492,14 @@ document.getElementById('avatarInput').addEventListener('change', function () {
     img.src = e.target.result;
   };
   reader.readAsDataURL(file);
+});
+
+document.getElementById('playerNameInput').addEventListener('input', () => {
+  if (isOnline && !isHost && typeof conn !== 'undefined' && conn && conn.open) {
+      const avatarDataUrl = clientAvatarImg && clientAvatarImg.complete ? clientAvatarImg.src : null;
+      conn.send({ type: 'avatar', avatar: avatarDataUrl, name: document.getElementById('playerNameInput').value.trim() });
+  }
+  if (isOnline && isHost && typeof updateLobbyUI === 'function') updateLobbyUI();
 });
 
 

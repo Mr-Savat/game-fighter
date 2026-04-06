@@ -10,6 +10,55 @@ let remoteShiftJustPressed = false;
 // FFA Tracking
 let ffaConnections = []; // Array of client objects { conn, id, keys, shiftJustPressed }
 
+function updateLobbyUI() {
+    const container = document.getElementById('lobbyProfiles');
+    if (!container || !isFFA || gameRunning) return;
+    
+    container.innerHTML = '';
+    const createThumb = (name, src, glowCol) => {
+        const d = document.createElement('div');
+        const imgTag = src ? `<img src="${src}" style="width:30px;height:30px;border-radius:4px;object-fit:cover;object-position:center;">` : `<div style="width:30px;height:30px;background:#333;border-radius:4px;"></div>`;
+        d.innerHTML = `${imgTag}<span style="font-size:11px;color:#fff;font-weight:bold;max-width:80px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${name}</span>`;
+        d.style = `display:flex; align-items:center; gap:8px; background:#111; padding:6px 12px 6px 6px; border-radius:30px; border:1px solid ${glowCol};`;
+        return d;
+    };
+
+    if (isHost) {
+        const hName = document.getElementById('playerNameInput').value.trim() || 'HOST';
+        const hImgSrc = (typeof hostAvatarImg !== 'undefined' && hostAvatarImg && hostAvatarImg.complete) ? hostAvatarImg.src : '';
+        container.appendChild(createThumb(hName, hImgSrc, '#bf5fff'));
+        
+        ffaConnections.forEach((c, i) => {
+           if (!c.conn || !c.conn.open) return;
+           const cName = c.name || `P${i+2}`;
+           const cImgSrc = (c.avatar && c.avatar.complete) ? c.avatar.src : '';
+           container.appendChild(createThumb(cName, cImgSrc, '#444'));
+        });
+    } else {
+        const avatars = window.ffaAvatarSrcMap || {};
+        const names = window.ffaNameMap || {};
+        
+        let maxIdx = -1;
+        for (let k in avatars) if (parseInt(k) > maxIdx) maxIdx = parseInt(k);
+        for (let k in names) if (parseInt(k) > maxIdx) maxIdx = parseInt(k);
+        
+        if (maxIdx === -1) {
+            // Self only
+            const hName = document.getElementById('playerNameInput').value.trim() || 'YOU';
+            const hImgSrc = (typeof clientAvatarImg !== 'undefined' && clientAvatarImg && clientAvatarImg.complete) ? clientAvatarImg.src : '';
+            container.appendChild(createThumb(hName, hImgSrc, '#444'));
+            return;
+        }
+        
+        for (let i = 0; i <= maxIdx; i++) {
+            if (!avatars[i] && !names[i] && i !== 0) continue;
+            let cName = names[i] || (i === 0 ? 'HOST' : `P${i+1}`);
+            let glow = i === 0 ? '#bf5fff' : '#444';
+            container.appendChild(createThumb(cName, avatars[i], glow));
+        }
+    }
+}
+
 function setupNetworkUI() {
   document.getElementById('hostBtn').addEventListener('click', () => {
     isFFA = false;
@@ -343,6 +392,7 @@ function initHostFFA() {
       document.getElementById('startOnlineBtn').style.display = 'block';
       document.getElementById('inviteLink').style.display = 'none';
       document.getElementById('linkHint').style.display = 'none';
+      updateLobbyUI();
     }
 
     let client;
@@ -386,7 +436,7 @@ function initHostFFA() {
           client.avatar.src = data.avatar;
           if (fighters[fIndex]) fighters[fIndex].customAvatar = client.avatar;
         }
-        if (data.name) {
+        if (data.name !== undefined) {
             client.name = data.name;
             if (fighters[fIndex]) fighters[fIndex].name = data.name;
         }
@@ -398,6 +448,7 @@ function initHostFFA() {
            if (ffaConnections[i].avatar) allAvatars[i + 1] = ffaConnections[i].avatar.src;
            if (ffaConnections[i].name) allNames[i + 1] = ffaConnections[i].name;
         }
+        updateLobbyUI();
         for (const other of ffaConnections) {
            if (other.conn && other.conn.open) other.conn.send({ type: 'updateAvatarsFFA', allAvatars, allNames });
         }
@@ -414,6 +465,7 @@ function initHostFFA() {
               ffaConnections.splice(idx, 1);
               fighters.splice(idx + 1, 1); // host is 0
            }
+           updateLobbyUI();
        }
     });
   });
@@ -429,6 +481,9 @@ function initClientFFA(hostId) {
     
     conn.on('open', () => {
       document.getElementById('onlineStatus').textContent = '[CONNECTED] Setup Avatar. Waiting for Host...';
+      const avatarDataUrl = clientAvatarImg && clientAvatarImg.complete ? clientAvatarImg.src : null;
+      const myName = document.getElementById('playerNameInput').value.trim();
+      conn.send({ type: 'avatar', avatar: avatarDataUrl, name: myName });
     });
 
     conn.on('data', data => {
@@ -456,6 +511,7 @@ function initClientFFA(hostId) {
       if (data.type === 'updateAvatarsFFA') {
         window.ffaAvatarSrcMap = data.allAvatars;
         window.ffaNameMap = data.allNames;
+        updateLobbyUI();
       }
 
       if (data.type === 'stateFFA') {

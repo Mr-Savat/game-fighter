@@ -415,7 +415,7 @@ function initHostFFA() {
     connection.on('open', () => {
        if (gameRunning && slotIdx !== -1) {
           let allAvatars = { 0: (typeof hostAvatarImg !== 'undefined' && hostAvatarImg && hostAvatarImg.complete) ? hostAvatarImg.src : null };
-          let allNames = { 0: typeof player !== 'undefined' ? player.name : '' };
+          let allNames = { 0: (fighters.length > 0 && fighters[0].name) ? fighters[0].name : document.getElementById('playerNameInput').value.trim() };
           for (let i = 0; i < ffaConnections.length; i++) {
              if (ffaConnections[i].avatar) allAvatars[i + 1] = ffaConnections[i].avatar.src;
              if (ffaConnections[i].name) allNames[i + 1] = ffaConnections[i].name;
@@ -436,14 +436,14 @@ function initHostFFA() {
           client.avatar.src = data.avatar;
           if (fighters[fIndex]) fighters[fIndex].customAvatar = client.avatar;
         }
-        if (data.name !== undefined) {
+        if (data.name) {
             client.name = data.name;
             if (fighters[fIndex]) fighters[fIndex].name = data.name;
         }
         
         // Ensure all connected clients instantly receive the updated global avatar mapping!
         let allAvatars = { 0: (typeof hostAvatarImg !== 'undefined' && hostAvatarImg && hostAvatarImg.complete) ? hostAvatarImg.src : null };
-        let allNames = { 0: document.getElementById('playerNameInput').value.trim() };
+        let allNames = { 0: (fighters.length > 0 && fighters[0].name) ? fighters[0].name : document.getElementById('playerNameInput').value.trim() };
         for (let i = 0; i < ffaConnections.length; i++) {
            if (ffaConnections[i].avatar) allAvatars[i + 1] = ffaConnections[i].avatar.src;
            if (ffaConnections[i].name) allNames[i + 1] = ffaConnections[i].name;
@@ -481,9 +481,11 @@ function initClientFFA(hostId) {
     
     conn.on('open', () => {
       document.getElementById('onlineStatus').textContent = '[CONNECTED] Setup Avatar. Waiting for Host...';
-      const avatarDataUrl = clientAvatarImg && clientAvatarImg.complete ? clientAvatarImg.src : null;
-      const myName = document.getElementById('playerNameInput').value.trim();
-      conn.send({ type: 'avatar', avatar: avatarDataUrl, name: myName });
+      const avatarDataUrl = (window.customAvatarUploaded && clientAvatarImg && clientAvatarImg.complete) ? clientAvatarImg.src : null;
+      const myName = document.getElementById('playerNameInput').value.trim() || null;
+      if (avatarDataUrl || myName) {
+         conn.send({ type: 'avatar', avatar: avatarDataUrl, name: myName });
+      }
     });
 
     conn.on('data', data => {
@@ -495,9 +497,11 @@ function initClientFFA(hostId) {
       }
 
       if (data.type === 'startFFA') {
-        const avatarDataUrl = clientAvatarImg && clientAvatarImg.complete ? clientAvatarImg.src : null;
-        const myName = document.getElementById('playerNameInput').value.trim();
-        if (conn && conn.open) conn.send({ type: 'avatar', avatar: avatarDataUrl, name: myName });
+        const avatarDataUrl = (window.customAvatarUploaded && clientAvatarImg && clientAvatarImg.complete) ? clientAvatarImg.src : null;
+        const myName = document.getElementById('playerNameInput').value.trim() || null;
+        if (avatarDataUrl || myName) {
+            conn.send({ type: 'avatar', avatar: avatarDataUrl, name: myName });
+        }
         
         document.getElementById('startScreen').style.display = 'none';
         

@@ -475,6 +475,7 @@ document.getElementById('avatarInput').addEventListener('change', function () {
       
       const compressedImg = new Image();
       compressedImg.onload = () => {
+        window.customAvatarUploaded = true;
         if (isOnline && !isHost) {
           clientAvatarImg = compressedImg;
           if (typeof conn !== 'undefined' && conn && conn.open) {

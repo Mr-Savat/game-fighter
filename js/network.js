@@ -112,12 +112,32 @@ function initHost() {
 
   peer.on('connection', connection => {
     conn = connection;
-    document.getElementById('onlineStatus').textContent = '[P2 JOINED] Setup Avatar, then Start!';
-    document.getElementById('inviteLink').style.display = 'none';
-    document.getElementById('linkHint').style.display = 'none';
-    document.getElementById('startOnlineBtn').style.display = 'block';
+    
+    if (!gameRunning) {
+      document.getElementById('onlineStatus').textContent = '[P2 JOINED] Setup Avatar, then Start!';
+      document.getElementById('inviteLink').style.display = 'none';
+      document.getElementById('linkHint').style.display = 'none';
+      document.getElementById('startOnlineBtn').style.display = 'block';
+    }
+
+    conn.on('open', () => {
+      // Clear disconnect timer if opponent reconnected
+      if (window.disconnectTimer) {
+        clearTimeout(window.disconnectTimer);
+        window.disconnectTimer = null;
+      }
+      window.lastClientPing = Date.now(); // reset heartbeat tracking
+
+      // If the match is already running (e.g. client reconnected), send start to skip lobby
+      if (gameRunning) {
+        const avatarDataUrl = hostAvatarImg && hostAvatarImg.complete ? hostAvatarImg.src : null;
+        conn.send({ type: 'start', avatar: avatarDataUrl });
+      }
+    });
 
     conn.on('data', data => {
+      window.lastClientPing = Date.now(); // Record heartbeat!
+      
       // Receive inputs from client
       if (data.type === 'input') {
         remoteKeys = data.keys;
@@ -129,6 +149,42 @@ function initHost() {
         clientAvatarImg = new Image();
         clientAvatarImg.src = data.avatar;
       }
+    });
+    
+    // Heartbeat for instant and visual disconnect detection
+    if (window.clientPingInterval) clearInterval(window.clientPingInterval);
+    window.lastClientPing = Date.now();
+    
+    window.clientPingInterval = setInterval(() => {
+      if (!gameRunning || isFFA || typeof enemy === 'undefined') return;
+      
+      const timeSincePing = Date.now() - window.lastClientPing;
+      
+      // If 2+ seconds pass without input, they are hanging/disconnected!
+      if (timeSincePing > 2000) {
+        remoteKeys = {};
+        remoteShiftJustPressed = false;
+        
+        const GRACE_PERIOD_MS = 9000; // Total 9s (2s dead + 7s warning)
+        const timeLeft = Math.ceil((GRACE_PERIOD_MS - timeSincePing) / 1000);
+        
+        if (timeLeft <= 0) {
+            playerScore = 2; // Force full match victory
+            window.opponentDropped = true; // Mark as disconnect-win
+            enemy.health = 0; // Trigger Auto-win
+            clearInterval(window.clientPingInterval);
+        } else {
+            if (typeof showAnnounce === 'function') {
+               showAnnounce(`OPPONENT DROPPED! WAITING: ${timeLeft}`, 60);
+            }
+        }
+      }
+    }, 1000);
+
+    conn.on('close', () => {
+      remoteKeys = {};
+      remoteShiftJustPressed = false;
+      // Heartbeat timer handles the 7-second grace period visually!
     });
   });
 }

@@ -263,7 +263,14 @@ function checkGameOver() {
     subtitle.textContent = isLocalVictory ? 'You win the match!' : (isOnline ? 'Opponent wins the match!' : 'CPU wins the match!');
     roundRes.textContent = `FINAL SCORE  ${playerScore} — ${enemyScore}`;
     title.className = isLocalVictory ? 'win' : 'lose';
-    document.getElementById('restartBtn').textContent = (isOnline && !isHost) ? 'WAITING FOR HOST...' : 'NEW MATCH';
+    
+    if (window.opponentDropped) {
+        document.getElementById('restartBtn').style.display = 'none';
+        subtitle.textContent = 'Opponent Disconnected!';
+    } else {
+        document.getElementById('restartBtn').style.display = 'block';
+        document.getElementById('restartBtn').textContent = (isOnline && !isHost) ? 'WAITING FOR HOST...' : 'NEW MATCH';
+    }
   } else {
     if (!timeOut) title.textContent = isLocalVictory ? 'ROUND WIN!' : 'ROUND LOST!';
     subtitle.textContent = `Round ${currentRound} complete · Play again`;
@@ -411,6 +418,8 @@ function startGame() {
   document.getElementById('startScreen').style.display = 'none';
   document.getElementById('gameWrapper').style.display = 'flex';
   document.getElementById('overlay').classList.remove('active');
+  document.getElementById('restartBtn').style.display = 'block';
+  window.opponentDropped = false;
 
   particles = [];
   shakeFrames = 0;

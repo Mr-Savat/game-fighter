@@ -35,21 +35,32 @@ function setupNetworkUI() {
     
     // Broadcast to 1v1 or all FFA clients
     if (isFFA) {
-      if (fighters.length > 0) fighters[0].customAvatar = hostAvatarImg;
+      const myName = document.getElementById('playerNameInput').value.trim();
+      if (fighters.length > 0) {
+          fighters[0].customAvatar = hostAvatarImg;
+          if (myName) fighters[0].name = myName;
+      }
       
       let allAvatars = { 0: avatarDataUrl };
+      let allNames = { 0: myName };
+      
       for (let i = 0; i < ffaConnections.length; i++) {
         const client = ffaConnections[i];
         if (client.avatar && client.avatar.complete) {
           allAvatars[i + 1] = client.avatar.src;
           if (fighters[i + 1]) fighters[i + 1].customAvatar = client.avatar;
         }
+        if (client.name) {
+          allNames[i + 1] = client.name;
+          if (fighters[i + 1]) fighters[i + 1].name = client.name;
+        }
       }
       for (const client of ffaConnections) {
-        if (client.conn && client.conn.open) client.conn.send({ type: 'startFFA', allAvatars });
+        if (client.conn && client.conn.open) client.conn.send({ type: 'startFFA', allAvatars, allNames });
       }
     } else {
-      if (conn && conn.open) conn.send({ type: 'start', avatar: avatarDataUrl });
+      const myName = document.getElementById('playerNameInput').value.trim();
+      if (conn && conn.open) conn.send({ type: 'start', avatar: avatarDataUrl, name: myName });
     }
 
     document.getElementById('startScreen').style.display = 'none';
@@ -145,9 +156,15 @@ function initHost() {
       }
 
       // Receive Client Avatar Response
-      if (data.type === 'avatar' && data.avatar) {
-        clientAvatarImg = new Image();
-        clientAvatarImg.src = data.avatar;
+      if (data.type === 'avatar') {
+        if (data.avatar) {
+          clientAvatarImg = new Image();
+          clientAvatarImg.src = data.avatar;
+        }
+        if (data.name && typeof enemy !== 'undefined') enemy.name = data.name;
+        
+        const myName = document.getElementById('playerNameInput').value.trim();
+        if (myName && typeof player !== 'undefined') player.name = myName;
       }
     });
     
@@ -205,7 +222,8 @@ function initClient(hostId) {
       if (data.type === 'start') {
         // Send our local avatar back to Host
         const avatarDataUrl = clientAvatarImg && clientAvatarImg.complete ? clientAvatarImg.src : null;
-        if (conn && conn.open) conn.send({ type: 'avatar', avatar: avatarDataUrl });
+        const myName = document.getElementById('playerNameInput').value.trim();
+        if (conn && conn.open) conn.send({ type: 'avatar', avatar: avatarDataUrl, name: myName });
 
         // Receive Host avatar
         if (data.avatar) {
@@ -215,6 +233,9 @@ function initClient(hostId) {
 
         document.getElementById('startScreen').style.display = 'none';
         startGame(); // Initialize dummy states
+        
+        if (data.name && typeof enemy !== 'undefined') enemy.name = data.name;
+        if (myName && typeof player !== 'undefined') player.name = myName;
       }
 
       // Receive full simulation state from Host
@@ -305,6 +326,18 @@ function initHostFFA() {
   });
 
   peer.on('connection', connection => {
+    let slotIdx = -1;
+    if (gameRunning) {
+      slotIdx = ffaConnections.findIndex(c => !c.conn || !c.conn.open);
+      if (slotIdx === -1) {
+        connection.on('open', () => {
+          connection.send({ type: 'rejectedFFA' });
+          setTimeout(() => connection.close(), 500);
+        });
+        return;
+      }
+    }
+
     if (!gameRunning) {
       document.getElementById('onlineStatus').textContent = `[${ffaConnections.length + 1} JOINED] Setup Avatar, then Start!`;
       document.getElementById('startOnlineBtn').style.display = 'block';
@@ -312,42 +345,75 @@ function initHostFFA() {
       document.getElementById('linkHint').style.display = 'none';
     }
 
-    let client = { conn: connection, id: connection.peer, keys: {}, shiftJustPressed: false, avatar: null };
-    ffaConnections.push(client);
-    
-    // Assign a distinct neon color sequentially
-    const FFA_COLORS = ['#ff3a3a', '#00cfff', '#00ff33', '#ffea00', '#b200ff', '#ff8800', '#ff00aa', '#ffffff'];
-    const pColor = FFA_COLORS[fighters.length % FFA_COLORS.length];
-    
-    // Add dummy fighter so it exists when we start
-    fighters.push(createFighter({ x: 200 + Math.random() * 400, y: GROUND, color: pColor, isPlayer: false, facing: -1 }));
+    let client;
+    if (slotIdx !== -1) {
+      client = ffaConnections[slotIdx];
+      client.conn = connection;
+      client.id = connection.peer;
+    } else {
+      client = { conn: connection, id: connection.peer, keys: {}, shiftJustPressed: false, avatar: null };
+      ffaConnections.push(client);
+      
+      // Assign a distinct neon color sequentially
+      const FFA_COLORS = ['#ff3a3a', '#00cfff', '#00ff33', '#ffea00', '#b200ff', '#ff8800', '#ff00aa', '#ffffff'];
+      const pColor = FFA_COLORS[fighters.length % FFA_COLORS.length];
+      
+      // Add dummy fighter so it exists when we start
+      fighters.push(createFighter({ x: 200 + Math.random() * 400, y: GROUND, color: pColor, isPlayer: false, facing: -1 }));
+    }
+
+    connection.on('open', () => {
+       if (gameRunning && slotIdx !== -1) {
+          let allAvatars = { 0: (typeof hostAvatarImg !== 'undefined' && hostAvatarImg && hostAvatarImg.complete) ? hostAvatarImg.src : null };
+          let allNames = { 0: typeof player !== 'undefined' ? player.name : '' };
+          for (let i = 0; i < ffaConnections.length; i++) {
+             if (ffaConnections[i].avatar) allAvatars[i + 1] = ffaConnections[i].avatar.src;
+             if (ffaConnections[i].name) allNames[i + 1] = ffaConnections[i].name;
+          }
+          connection.send({ type: 'startFFA', allAvatars, allNames });
+       }
+    });
 
     connection.on('data', data => {
       if (data.type === 'input') {
         client.keys = data.keys;
         if (data.shift) client.shiftJustPressed = true;
       }
-      if (data.type === 'avatar' && data.avatar) {
-        client.avatar = new Image();
-        client.avatar.src = data.avatar;
+      if (data.type === 'avatar') {
+        let fIndex = ffaConnections.indexOf(client) + 1;
+        if (data.avatar) {
+          client.avatar = new Image();
+          client.avatar.src = data.avatar;
+          if (fighters[fIndex]) fighters[fIndex].customAvatar = client.avatar;
+        }
+        if (data.name) {
+            client.name = data.name;
+            if (fighters[fIndex]) fighters[fIndex].name = data.name;
+        }
         
         // Ensure all connected clients instantly receive the updated global avatar mapping!
         let allAvatars = { 0: (typeof hostAvatarImg !== 'undefined' && hostAvatarImg && hostAvatarImg.complete) ? hostAvatarImg.src : null };
+        let allNames = { 0: document.getElementById('playerNameInput').value.trim() };
         for (let i = 0; i < ffaConnections.length; i++) {
            if (ffaConnections[i].avatar) allAvatars[i + 1] = ffaConnections[i].avatar.src;
+           if (ffaConnections[i].name) allNames[i + 1] = ffaConnections[i].name;
         }
         for (const other of ffaConnections) {
-           if (other.conn && other.conn.open) other.conn.send({ type: 'updateAvatarsFFA', allAvatars });
+           if (other.conn && other.conn.open) other.conn.send({ type: 'updateAvatarsFFA', allAvatars, allNames });
         }
       }
     });
 
     connection.on('close', () => {
-       // Optional: Kill or remove the player if they disconnect
-       const idx = ffaConnections.indexOf(client);
-       if (idx > -1) {
-          ffaConnections.splice(idx, 1);
-          fighters.splice(idx + 1, 1); // host is 0
+       if (gameRunning) {
+          client.conn = null;
+          client.keys = {};
+       } else {
+           const idx = ffaConnections.indexOf(client);
+           if (idx > -1) {
+              ffaConnections.splice(idx, 1);
+              fighters.splice(idx + 1, 1); // host is 0
+           }
        }
     });
   });
@@ -366,20 +432,30 @@ function initClientFFA(hostId) {
     });
 
     conn.on('data', data => {
+      if (data.type === 'rejectedFFA') {
+        window.isRejected = true;
+        alert("The FFA match is already in progress! You cannot join mid-game.");
+        window.location.href = window.location.origin + window.location.pathname;
+        return;
+      }
+
       if (data.type === 'startFFA') {
         const avatarDataUrl = clientAvatarImg && clientAvatarImg.complete ? clientAvatarImg.src : null;
-        if (conn && conn.open) conn.send({ type: 'avatar', avatar: avatarDataUrl });
+        const myName = document.getElementById('playerNameInput').value.trim();
+        if (conn && conn.open) conn.send({ type: 'avatar', avatar: avatarDataUrl, name: myName });
         
         document.getElementById('startScreen').style.display = 'none';
         
         // Cache initial avatar dictionary
         window.ffaAvatarSrcMap = data.allAvatars || window.ffaAvatarSrcMap || {};
+        window.ffaNameMap = data.allNames || window.ffaNameMap || {};
         
         startGame();
       }
 
       if (data.type === 'updateAvatarsFFA') {
         window.ffaAvatarSrcMap = data.allAvatars;
+        window.ffaNameMap = data.allNames;
       }
 
       if (data.type === 'stateFFA') {
@@ -404,6 +480,9 @@ function initClientFFA(hostId) {
                     fighters[i].customAvatar = img;
                 }
             }
+            if (window.ffaNameMap && window.ffaNameMap[i]) {
+                fighters[i].name = window.ffaNameMap[i];
+            }
         }
         
         matchTime = data.time;
@@ -415,6 +494,7 @@ function initClientFFA(hostId) {
     });
 
     conn.on('close', () => {
+      if (window.isRejected) return;
       alert("Host disconnected from the FFA server.");
       location.reload();
     });

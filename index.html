@@ -3,7 +3,8 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Street Fighter</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
@@ -22,7 +23,8 @@
         <div class="btn btn-ghost">📁 Upload Face</div>
         <input type="file" id="avatarInput" accept="image/*">
       </label>
-      <input type="text" id="playerNameInput" placeholder="YOUR NAME" maxlength="12" style="margin-top:12px; background: #0a0a0f; color: var(--neon-blue); border: 1px solid #334; padding: 10px; width: 100%; box-sizing: border-box; border-radius: 4px; text-align: center; text-transform: uppercase;">
+      <input type="text" id="playerNameInput" placeholder="YOUR NAME" maxlength="12"
+        style="margin-top:12px; background: #0a0a0f; color: var(--neon-blue); border: 1px solid #334; padding: 10px; width: 100%; box-sizing: border-box; border-radius: 4px; text-align: center; text-transform: uppercase;">
     </div>
 
     <div class="controls-hint">
@@ -34,11 +36,11 @@
     <div style="display: flex; gap: 16px; margin-top: 10px;">
       <button class="btn-start" id="startBtn">PLAY SOLO</button>
       <button class="btn-start" id="hostBtn"
-        style="background: linear-gradient(135deg, var(--neon-purple), #80f); box-shadow: 0 0 24px rgba(191,95,255,0.4);">HOST
-        1v1</button>
+        style="background: linear-gradient(135deg, var(--neon-purple), #80f); box-shadow: 0 0 24px rgba(191,95,255,0.4);">Create
+        1v1 Match</button>
       <button class="btn-start" id="hostFfaBtn"
-        style="background: linear-gradient(135deg, #ff0055, #ff6b35); box-shadow: 0 0 24px rgba(255,0,85,0.4);">HOST
-        FFA</button>
+        style="background: linear-gradient(135deg, #ff0055, #ff6b35); box-shadow: 0 0 24px rgba(255,0,85,0.4);">Free For
+        All</button>
     </div>
 
     <!-- Online waiting panel -->
@@ -54,7 +56,8 @@
 
       <button class="btn-start" id="startOnlineBtn" style="display: none; font-size: 14px; padding: 10px 24px;">START
         ALL Players Ready</button>
-      <div id="lobbyProfiles" style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; justify-content: center;"></div>
+      <div id="lobbyProfiles"
+        style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; justify-content: center;"></div>
     </div>
   </div>
 
@@ -89,7 +92,7 @@
     </div>
 
     <canvas id="gameCanvas" width="820" height="430"></canvas>
-    
+
     <!-- Mobile Touch Controls -->
     <div id="touchControls">
       <div class="dpad">
@@ -129,7 +132,8 @@
     <div id="overlaySubtitle">...</div>
     <div style="display: flex; gap: 16px; margin-top: 20px;">
       <button class="btn-start" id="restartBtn" style="font-size:14px;padding:13px 36px">REMATCH</button>
-      <button class="btn-start" id="homeBtn" style="font-size:14px;padding:13px 36px; background: linear-gradient(135deg, #444, #666); box-shadow: 0 0 16px rgba(100,100,100,0.4);">HOME</button>
+      <button class="btn-start" id="homeBtn"
+        style="font-size:14px;padding:13px 36px; background: linear-gradient(135deg, #444, #666); box-shadow: 0 0 16px rgba(100,100,100,0.4);">HOME</button>
     </div>
   </div>
 
